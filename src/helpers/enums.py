@@ -8,6 +8,7 @@ class Substances(str, Enum):
     NaOH = 'NaOH'
     EtOH = 'EtOH'
     DecanterSolution = 'DecanterSolution'
+    Glycerin = 'Glycerin'
 
 class States(str, Enum):
     Available = 'Available'

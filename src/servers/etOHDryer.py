@@ -1,3 +1,4 @@
+from unittest.mock import sentinel
 from src.servers.server import Server
 from src.helpers.helpers import ServerHelper
 from src.helpers import ports
@@ -8,39 +9,43 @@ import _thread
 import socket
 import time
 
-class NaOHTank(Server):
+class EtOHDryer(Server):
     def __init__(self, host, port, name):
         super().__init__(host, port, name)
 
-        self.naOHAmount = 0
+        self.etOHAmount = 0
         self.state = States.Available
 
         _thread.start_new_thread(self.process, ())
 
-    def fillTank(self, request):
+    def fillDryer(self, request):
         if self.state != States.Available:
             return {'status': False, 'message': 'component is busy'}
         else:
-            if request['substance'] == Substances.NaOH:
-                self.naOHAmount += request['amount']
-                return {'status': True, 'message': 'input received'}
-
+            if request['substance'] == Substances.EtOH:
+                self.etOHAmount += request['amount']
+                return {'status': True, 'message': f'{Substances.EtOH} received'}
         return {'status': False, 'message': 'invalid input'}
                 
 
     def run(self, conn, addr):
         while True:
-            request = json.loads(ServerHelper.waitMessage(conn))
+            request = ServerHelper.waitMessage(conn)
+            print(request)
+            if request != None or request != '':
+                request = json.loads(request)
+                print(request)
 
-            if request['type'] == RequestTypes.Fill:
-                response = self.fillTank(request)
-                ServerHelper.sendMessage(conn, json.dumps(response))
+                if request['type'] == RequestTypes.Fill:
+                    response = self.fillDryer(request)
+                    print(response)
+                    ServerHelper.sendMessage(conn, json.dumps(response))
 
     def process(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             try:
-                sock.connect((ports.Reactor.Host(), ports.Reactor.Port()))
-                print(f'naoh tank connected to reactor')
+                sock.connect((ports.EtOHTank.Host(), ports.EtOHTank.Port()))
+                print(f'dryer connected to etoh tank')
             except OSError as message:
                 print('socket connection error: ' + str(message))
                 print('retrying in 3 seconds...\n')
@@ -48,20 +53,22 @@ class NaOHTank(Server):
                 self.process()
 
             while True:
-                time.sleep(1)
-                self.transferNaOHToReactor(sock)
+                time.sleep(5)
+                self.transferToEtOHTank(sock)
 
 
-    def transferNaOHToReactor(self, sock):
+    def transferToEtOHTank(self, sock):
         sendingAmount = 0
-        if self.naOHAmount > 1:
+        if self.etOHAmount > 1:
             sendingAmount = 1
         else:
-            sendingAmount = self.naOHAmount
+            sendingAmount = self.etOHAmount
+
+        sendingAmount -= (sendingAmount * 0.5) / 100
             
         request = {
             'type': RequestTypes.Fill,
-            'substance': Substances.NaOH,
+            'substance': Substances.EtOH,
             'amount': sendingAmount
         }
 
@@ -71,7 +78,7 @@ class NaOHTank(Server):
         response = json.loads(sock.recv(1024).decode())
 
         if response['status']:
-            self.naOHAmount -= sendingAmount
+            self.etOHAmount -= sendingAmount + (sendingAmount * 0.5) / 100
 
 
 

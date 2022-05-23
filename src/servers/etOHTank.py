@@ -40,6 +40,7 @@ class EtOHTank(Server):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             try:
                 sock.connect((ports.Reactor.Host(), ports.Reactor.Port()))
+                print(f'etoh tank connected to reactor')
             except OSError as message:
                 print('socket connection error: ' + str(message))
                 print('retrying in 3 seconds...\n')

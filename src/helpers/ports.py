@@ -88,7 +88,16 @@ class Washing3:
     def Port():
         return 50010
 
-class Dryer:
+class EtOHDryer:
+    @staticmethod
+    def Host():
+        return 'localhost'
+
+    @staticmethod
+    def Port():
+        return 50011
+
+class BiodieselDryer:
     @staticmethod
     def Host():
         return 'localhost'

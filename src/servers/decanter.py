@@ -16,7 +16,7 @@ class Decanter(Server):
         self.capacity = 10
         self.state = States.Available
 
-        #_thread.start_new_thread(self.process, ())
+        _thread.start_new_thread(self.process, ())
 
     def fillDecanter(self, request):
         if self.state != States.Available:
@@ -41,34 +41,54 @@ class Decanter(Server):
 
             if request['type'] == RequestTypes.Fill:
                 response = self.fillDecanter(request)
-                print(response)
                 ServerHelper.sendMessage(conn, json.dumps(response))
 
-    def process(self):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            try:
-                sock.connect((ports.Reactor.Host(), ports.Reactor.Port()))
-            except OSError as message:
+    def connectDryer(self):
+        dryerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            dryerSocket.connect((ports.EtOHDryer.Host(), ports.EtOHDryer.Port()))
+            return dryerSocket
+        except OSError as message:
                 print('socket connection error: ' + str(message))
                 print('retrying in 3 seconds...\n')
                 time.sleep(3)
-                self.process()
+                self.connectDryer()
 
-            while True:
-                time.sleep(1)
-                self.transferNaOHToReactor(sock)
+    def connectGlycerinTank(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            sock.connect((ports.GlycerinTank.Host(), ports.GlycerinTank.Port()))
+            return sock
+        except OSError as message:
+                print('socket connection error: ' + str(message))
+                print('retrying in 3 seconds...\n')
+                time.sleep(3)
+                self.connectGlycerinTank()
 
 
-    def transferNaOHToReactor(self, sock):
+    def process(self):
+        dryerSocket = self.connectDryer()
+        glycerinSocket = self.connectGlycerinTank()
+        print(f'decanter connected to dryer')
+        
+
+        while True:
+            time.sleep(1)
+            print(self.solutionAmount)
+            self.transferEtOHToDryer(dryerSocket)
+            self.transferToGlycerinTank(glycerinSocket)
+
+
+    def transferEtOHToDryer(self, sock):
         sendingAmount = 0
-        if self.naOHAmount > 1:
-            sendingAmount = 1
+        if self.solutionAmount > 1:
+            sendingAmount = (1 * 3) / 100
         else:
-            sendingAmount = self.naOHAmount
+            sendingAmount = (self.solutionAmount * 3) / 100
             
         request = {
             'type': RequestTypes.Fill,
-            'substance': Substances.NaOH,
+            'substance': Substances.EtOH,
             'amount': sendingAmount
         }
 
@@ -78,7 +98,49 @@ class Decanter(Server):
         response = json.loads(sock.recv(1024).decode())
 
         if response['status']:
-            self.naOHAmount -= sendingAmount
+            self.solutionAmount -= sendingAmount
+
+    def transferToGlycerinTank(self, sock):
+        sendingAmount = 0
+        if self.solutionAmount > 1:
+            sendingAmount = (1 * 1) / 100
+        else:
+            sendingAmount = (self.solutionAmount * 1) / 100
+            
+        request = {
+            'type': RequestTypes.Fill,
+            'substance': Substances.Glycerin,
+            'amount': sendingAmount
+        }
+
+        # send request and get response
+        sock.sendall(json.dumps(request).encode())
+
+        response = json.loads(sock.recv(1024).decode())
+
+        if response['status']:
+            self.solutionAmount -= sendingAmount
+
+    def transferToWashing1(self, sock):
+        sendingAmount = 0
+        if self.solutionAmount > 1:
+            sendingAmount = (1 * 96) / 100
+        else:
+            sendingAmount = (self.solutionAmount * 96) / 100
+            
+        request = {
+            'type': RequestTypes.Fill,
+            'substance': Substances.DecanterSolution,
+            'amount': sendingAmount
+        }
+
+        # send request and get response
+        sock.sendall(json.dumps(request).encode())
+
+        response = json.loads(sock.recv(1024).decode())
+
+        if response['status']:
+            self.solutionAmount -= sendingAmount
 
 
 

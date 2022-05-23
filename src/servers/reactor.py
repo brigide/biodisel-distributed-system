@@ -60,6 +60,7 @@ class Reactor(Server):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             try:
                 sock.connect((ports.Decanter.Host(), ports.Decanter.Port()))
+                print(f'reactor connected to decanter')
             except OSError as message:
                 print('socket connection error: ' + str(message))
                 print('retrying in 3 seconds...\n')
