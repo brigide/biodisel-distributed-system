@@ -8,19 +8,19 @@ import _thread
 import socket
 import time
 
-class GlycerinTank(Server):
+class EmulsionTank(Server):
     def __init__(self, host, port, name):
         super().__init__(host, port, name)
 
-        self.glycerinAmount = 0
+        self.emulsionAmount = 0
         self.state = States.Available
 
     def fillTank(self, request):
         if self.state != States.Available:
             return {'status': False, 'message': 'component is busy'}
         else:
-            if request['substance'] == Substances.Glycerin:
-                self.glycerinAmount += request['amount']
+            if request['substance'] == Substances.Emulsion:
+                self.emulsionAmount += request['amount']
                 return {'status': True, 'message': 'input received'}
 
         return {'status': False, 'message': 'invalid input'}

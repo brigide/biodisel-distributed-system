@@ -9,7 +9,7 @@ import _thread
 import socket
 import time
 
-class EtOHDryer(Server):
+class BiodieselDryer(Server):
     def __init__(self, host, port, name):
         super().__init__(host, port, name)
 
@@ -41,8 +41,8 @@ class EtOHDryer(Server):
     def process(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             try:
-                sock.connect((ports.EtOHTank.Host(), ports.EtOHTank.Port()))
-                print(f'dryer connected to etoh tank')
+                sock.connect((ports.BiodieselTank.Host(), ports.BiodieselTank.Port()))
+                print(f'dryer connected to biodiesel tank')
             except OSError as message:
                 print('socket connection error: ' + str(message))
                 print('retrying in 3 seconds...\n')
@@ -51,10 +51,10 @@ class EtOHDryer(Server):
 
             while True:
                 time.sleep(5)
-                self.transferToEtOHTank(sock)
+                self.transferToBiodieselTank(sock)
 
 
-    def transferToEtOHTank(self, sock):
+    def transferToBiodieselTank(self, sock):
         sendingAmount = 0
         if self.etOHAmount > 1:
             sendingAmount = 1
@@ -65,7 +65,7 @@ class EtOHDryer(Server):
             
         request = {
             'type': RequestTypes.Fill,
-            'substance': Substances.EtOH,
+            'substance': Substances.Biodiesel,
             'amount': sendingAmount
         }
 

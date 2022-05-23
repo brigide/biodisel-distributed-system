@@ -1,5 +1,7 @@
 from enum import Enum
 
+from helpers.ports import BiodieselDryer
+
 class RequestTypes(str, Enum):
     Fill = 'Fill'
 
@@ -9,6 +11,8 @@ class Substances(str, Enum):
     EtOH = 'EtOH'
     DecanterSolution = 'DecanterSolution'
     Glycerin = 'Glycerin'
+    Emulsion = 'Emulsion'
+    Biodiesel = 'Biodiesel'
 
 class States(str, Enum):
     Available = 'Available'

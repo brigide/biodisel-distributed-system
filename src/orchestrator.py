@@ -16,6 +16,10 @@ class Orchestrator:
         self.conns['Decanter'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.conns['EtOHDryer'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.conns['GlycerinTank'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.conns['Washing1'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.conns['Washing2'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.conns['Washing3'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.conns['EmulsionTank'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def addConn(self, name, host, port):
         try:
@@ -30,14 +34,17 @@ class Orchestrator:
 
     def addConns(self):
         self.addConn('OilTank', ports.OilTank.Host(), ports.OilTank.Port())
+        self.addConn('EmulsionTank', ports.EmulsionTank.Host(), ports.EmulsionTank.Port())
+        self.addConn('Washing3', ports.Washing3.Host(), ports.Washing3.Port())
+        self.addConn('Washing2', ports.Washing2.Host(), ports.Washing2.Port())
+        self.addConn('Washing1', ports.Washing1.Host(), ports.Washing1.Port())
         self.addConn('GlycerinTank', ports.GlycerinTank.Host(), ports.GlycerinTank.Port())
         self.addConn('EtOHDryer', ports.EtOHDryer.Host(), ports.EtOHDryer.Port())
         self.addConn('Decanter', ports.Decanter.Host(), ports.Decanter.Port())
         self.addConn('Reactor', ports.Reactor.Host(), ports.Reactor.Port())
         self.addConn('NaOHTank', ports.NaOHTank.Host(), ports.NaOHTank.Port())
         self.addConn('EtOHTank', ports.EtOHTank.Host(), ports.EtOHTank.Port())
-        
-        
+
 
 
     def initialize(self):

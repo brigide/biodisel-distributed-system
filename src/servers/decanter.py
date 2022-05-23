@@ -69,19 +69,31 @@ class Decanter(Server):
                 time.sleep(3)
                 self.connectGlycerinTank()
 
+    def connectWashing1(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            sock.connect((ports.Washing1.Host(), ports.Washing1.Port()))
+            return sock
+        except OSError as message:
+                print('socket connection error: ' + str(message))
+                print('retrying in 3 seconds...\n')
+                time.sleep(3)
+                self.connectWashing1()
+
 
     def process(self):
         dryerSocket = self.connectDryer()
         glycerinSocket = self.connectGlycerinTank()
+        washingSocket = self.connectWashing1()
         print(f'decanter connected to dryer')
         
 
         while True:
             time.sleep(1)
             if self.state != States.Busy:
-                print(self.solutionAmount)
                 self.transferEtOHToDryer(dryerSocket)
                 self.transferToGlycerinTank(glycerinSocket)
+                self.transferToWashing1(washingSocket)
             else:
                 print('decanter is busy')
                 if self.busyTime >= 5:
@@ -142,7 +154,7 @@ class Decanter(Server):
             
         request = {
             'type': RequestTypes.Fill,
-            'substance': Substances.DecanterSolution,
+            'substance': Substances.EtOH,
             'amount': sendingAmount
         }
 

@@ -123,3 +123,12 @@ class Orchestrator:
     @staticmethod
     def Port():
         return 50013
+
+class EmulsionTank:
+    @staticmethod
+    def Host():
+        return 'localhost'
+
+    @staticmethod
+    def Port():
+        return 50016
