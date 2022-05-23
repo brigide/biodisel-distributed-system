@@ -15,6 +15,7 @@ class Decanter(Server):
         self.solutionAmount = 0
         self.capacity = 10
         self.state = States.Available
+        self.busyTime = 0
 
         _thread.start_new_thread(self.process, ())
 
@@ -41,6 +42,9 @@ class Decanter(Server):
 
             if request['type'] == RequestTypes.Fill:
                 response = self.fillDecanter(request)
+                if response['status']:
+                    print('recieved substance')
+                    self.state = States.Busy
                 ServerHelper.sendMessage(conn, json.dumps(response))
 
     def connectDryer(self):
@@ -74,9 +78,17 @@ class Decanter(Server):
 
         while True:
             time.sleep(1)
-            print(self.solutionAmount)
-            self.transferEtOHToDryer(dryerSocket)
-            self.transferToGlycerinTank(glycerinSocket)
+            if self.state != States.Busy:
+                print(self.solutionAmount)
+                self.transferEtOHToDryer(dryerSocket)
+                self.transferToGlycerinTank(glycerinSocket)
+            else:
+                print('decanter is busy')
+                if self.busyTime >= 5:
+                    self.state = States.Available
+                    self.busyTime = 0
+                else:
+                    self.busyTime += 1
 
 
     def transferEtOHToDryer(self, sock):

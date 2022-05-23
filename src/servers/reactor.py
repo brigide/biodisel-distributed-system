@@ -17,7 +17,7 @@ class Reactor(Server):
         self.naOHAmout = 0
         self.etOHAmount = 0
         self.totalAmount = 0
-        self.decantedSolution = 0
+        self.processedSolution = 0
         self.state = States.Available
 
         _thread.start_new_thread(self.process, ())
@@ -75,13 +75,20 @@ class Reactor(Server):
                 #     self.oilAmount + self.naOHAmout + self.etOHAmount > 5
                 #     ) and (self.oilAmount >= 2.5 and self.naOHAmout >= 1.25 and self.etOHAmount >=1.25)):
                 if self.oilAmount >= 2.5 and self.naOHAmout >= 1.25 and self.etOHAmount >= 1.25:
+                    self.processSolution()
                     self.transferToDecanter(sock)
 
+    def processSolution(self):
+        time.sleep(1)
+        self.processedSolution += 5
+        self.oilAmount -= 2.5
+        self.naOHAmout -= 1.25
+        self.etOHAmount -= 1.25
 
     def transferToDecanter(self, sock):
-        processedSubstanceAmount = self.oilAmount + self.etOHAmount + self.naOHAmout
-        if processedSubstanceAmount > 5:
-            processedSubstanceAmount = 5
+        processedSubstanceAmount = self.processedSolution
+        if processedSubstanceAmount > 1:
+            processedSubstanceAmount = 1
 
         request = {
             'type': RequestTypes.Fill,

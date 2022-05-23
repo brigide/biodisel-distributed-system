@@ -32,7 +32,7 @@ class EtOHDryer(Server):
         while True:
             request = ServerHelper.waitMessage(conn)
             print(request)
-            if request != None or request != '':
+            if True: #type(request) == dict:
                 request = json.loads(request)
                 print(request)
 

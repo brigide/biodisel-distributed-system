@@ -24,9 +24,17 @@ class Main:
         conn, addr = self.processes['GlycerinTank'].waitConnection()
         self.threads['GlycerinTank'] = _thread.start_new_thread(self.processes['GlycerinTank'].run, (conn, addr))
 
+        self.processes['EtOHDryer'] = EtOHDryer(ports.EtOHDryer.Host(), ports.EtOHDryer.Port(), 'EtOHDryer')
+        conn, addr = self.processes['EtOHDryer'].waitConnection()
+        self.threads['EtOHDryer'] = _thread.start_new_thread(self.processes['EtOHDryer'].run, (conn, addr))
+
         self.processes['Decanter'] = Decanter(ports.Decanter.Host(), ports.Decanter.Port(), 'Decanter')
         conn, addr = self.processes['Decanter'].waitConnection()
         self.threads['Decanter'] = _thread.start_new_thread(self.processes['Decanter'].run, (conn, addr))
+        conn, addr = self.processes['EtOHDryer'].waitConnection()
+        self.threads['EtOHDryer'] = _thread.start_new_thread(self.processes['EtOHDryer'].run, (conn, addr))
+        conn, addr = self.processes['GlycerinTank'].waitConnection()
+        self.threads['GlycerinTank'] = _thread.start_new_thread(self.processes['GlycerinTank'].run, (conn, addr))
 
         
         self.processes['Reactor'] = Reactor(ports.Reactor.Host(), ports.Reactor.Port(), 'Reactor')
@@ -49,16 +57,8 @@ class Main:
         conn, addr = self.processes['Reactor'].waitConnection()
         self.threads['Reactor'] = _thread.start_new_thread(self.processes['Reactor'].run, (conn, addr))
 
-        self.processes['EtOHDryer'] = EtOHDryer(ports.EtOHDryer.Host(), ports.EtOHDryer.Port(), 'EtOHDryer')
-        conn, addr = self.processes['EtOHDryer'].waitConnection()
-        self.threads['EtOHDryer'] = _thread.start_new_thread(self.processes['EtOHDryer'].run, (conn, addr))
         conn, addr = self.processes['EtOHTank'].waitConnection()
         self.threads['EtOHTank'] = _thread.start_new_thread(self.processes['EtOHTank'].run, (conn, addr))
-
-        conn, addr = self.processes['EtOHDryer'].waitConnection()
-        self.threads['EtOHDryer'] = _thread.start_new_thread(self.processes['EtOHDryer'].run, (conn, addr))
-        conn, addr = self.processes['GlycerinTank'].waitConnection()
-        self.threads['GlycerinTank'] = _thread.start_new_thread(self.processes['GlycerinTank'].run, (conn, addr))
 
         while True:
             continue

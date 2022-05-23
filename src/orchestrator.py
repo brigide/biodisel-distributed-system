@@ -31,11 +31,12 @@ class Orchestrator:
     def addConns(self):
         self.addConn('OilTank', ports.OilTank.Host(), ports.OilTank.Port())
         self.addConn('GlycerinTank', ports.GlycerinTank.Host(), ports.GlycerinTank.Port())
+        self.addConn('EtOHDryer', ports.EtOHDryer.Host(), ports.EtOHDryer.Port())
         self.addConn('Decanter', ports.Decanter.Host(), ports.Decanter.Port())
         self.addConn('Reactor', ports.Reactor.Host(), ports.Reactor.Port())
         self.addConn('NaOHTank', ports.NaOHTank.Host(), ports.NaOHTank.Port())
         self.addConn('EtOHTank', ports.EtOHTank.Host(), ports.EtOHTank.Port())
-        self.addConn('EtOHDryer', ports.EtOHDryer.Host(), ports.EtOHDryer.Port())
+        
         
 
 
