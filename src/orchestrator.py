@@ -13,6 +13,7 @@ class Orchestrator:
         self.conns['Reactor'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.conns['NaOHTank'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.conns['EtOHTank'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.conns['Decanter'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def addConn(self, name, host, port):
         try:
@@ -27,6 +28,7 @@ class Orchestrator:
 
     def addConns(self):
         self.addConn('OilTank', ports.OilTank.Host(), ports.OilTank.Port())
+        self.addConn('Decanter', ports.Decanter.Host(), ports.Decanter.Port())
         self.addConn('Reactor', ports.Reactor.Host(), ports.Reactor.Port())
         self.addConn('NaOHTank', ports.NaOHTank.Host(), ports.NaOHTank.Port())
         self.addConn('EtOHTank', ports.EtOHTank.Host(), ports.EtOHTank.Port())

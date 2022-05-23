@@ -8,23 +8,30 @@ import _thread
 import socket
 import time
 
-class EtOHTank(Server):
+class Decanter(Server):
     def __init__(self, host, port, name):
         super().__init__(host, port, name)
 
-        self.etOHAmount = 0
+        self.solutionAmount = 0
+        self.capacity = 10
         self.state = States.Available
 
-        _thread.start_new_thread(self.process, ())
+        #_thread.start_new_thread(self.process, ())
 
-    def fillTank(self, request):
+    def fillDecanter(self, request):
         if self.state != States.Available:
             return {'status': False, 'message': 'component is busy'}
         else:
-            if request['substance'] == Substances.EtOH:
-                self.etOHAmount += request['amount']
-                return {'status': True, 'message': 'input received'}
-
+            if request['substance'] == Substances.DecanterSolution:
+                if self.capacity >= self.solutionAmount + request['amount']:
+                    self.solutionAmount += request['amount']
+                    return {'status': True, 'message': f'{Substances.DecanterSolution} received entirely', 'back': 0}
+                elif self.capacity < self.solutionAmount + request['amount'] and self.solutionAmount < self.capacity:
+                    back = self.solutionAmount + request['amount'] - self.capacity
+                    self.solutionAmount += request['amount'] - back
+                    return {'status': True, 'message': f'{Substances.DecanterSolution} received partialy', 'back': back}
+                elif self.solutionAmount >= self.capacity:
+                    return {'status': False, 'message': f'Decanter is full', 'back': 0}
         return {'status': False, 'message': 'invalid input'}
                 
 
@@ -33,7 +40,8 @@ class EtOHTank(Server):
             request = json.loads(ServerHelper.waitMessage(conn))
 
             if request['type'] == RequestTypes.Fill:
-                response = self.fillTank(request)
+                response = self.fillDecanter(request)
+                print(response)
                 ServerHelper.sendMessage(conn, json.dumps(response))
 
     def process(self):
@@ -48,19 +56,19 @@ class EtOHTank(Server):
 
             while True:
                 time.sleep(1)
-                self.transferEtOHToReactor(sock)
+                self.transferNaOHToReactor(sock)
 
 
-    def transferEtOHToReactor(self, sock):
+    def transferNaOHToReactor(self, sock):
         sendingAmount = 0
-        if self.etOHAmount > 1:
+        if self.naOHAmount > 1:
             sendingAmount = 1
         else:
-            sendingAmount = self.etOHAmount
+            sendingAmount = self.naOHAmount
             
         request = {
             'type': RequestTypes.Fill,
-            'substance': Substances.EtOH,
+            'substance': Substances.NaOH,
             'amount': sendingAmount
         }
 
@@ -70,7 +78,7 @@ class EtOHTank(Server):
         response = json.loads(sock.recv(1024).decode())
 
         if response['status']:
-            self.etOHAmount -= sendingAmount
+            self.naOHAmount -= sendingAmount
 
 
 

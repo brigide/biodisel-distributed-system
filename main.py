@@ -2,6 +2,7 @@ from src.servers.oilTank import OilTank
 from src.servers.reactor import Reactor
 from src.servers.naOHTank import NaOHTank
 from src.servers.etOHTank import EtOHTank
+from src.servers.decanter import Decanter
 from src.helpers import ports
 
 import _thread
@@ -18,12 +19,18 @@ class Main:
         self.threads['OilTank'] = _thread.start_new_thread(self.processes['OilTank'].run, (conn, addr))
         #self.threads['OilTankOutputs'] = _thread.start_new_thread(self.processes['OilTank'].outputs, ())
 
+        self.processes['Decanter'] = Decanter(ports.Decanter.Host(), ports.Decanter.Port(), 'Decanter')
+        conn, addr = self.processes['Decanter'].waitConnection()
+        self.threads['Decanter'] = _thread.start_new_thread(self.processes['Decanter'].run, (conn, addr))
+
         
         self.processes['Reactor'] = Reactor(ports.Reactor.Host(), ports.Reactor.Port(), 'Reactor')
         conn, addr = self.processes['Reactor'].waitConnection()
         self.threads['Reactor'] = _thread.start_new_thread(self.processes['Reactor'].run, (conn, addr))
         conn, addr = self.processes['Reactor'].waitConnection()
         self.threads['Reactor'] = _thread.start_new_thread(self.processes['Reactor'].run, (conn, addr))
+        conn, addr = self.processes['Decanter'].waitConnection()
+        self.threads['Decanter'] = _thread.start_new_thread(self.processes['Decanter'].run, (conn, addr))
 
         self.processes['NaOHTank'] = NaOHTank(ports.NaOHTank.Host(), ports.NaOHTank.Port(), 'NaOHTank')
         conn, addr = self.processes['NaOHTank'].waitConnection()

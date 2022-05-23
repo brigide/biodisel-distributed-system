@@ -34,7 +34,6 @@ class OilTank(Server):
 
             if request['type'] == RequestTypes.Fill:
                 response = self.fillTank(request)
-                print(self.oilAmount)
                 ServerHelper.sendMessage(conn, json.dumps(response))
 
     def process(self):
