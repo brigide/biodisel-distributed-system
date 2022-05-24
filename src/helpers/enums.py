@@ -1,7 +1,5 @@
 from enum import Enum
 
-from helpers.ports import BiodieselDryer
-
 class RequestTypes(str, Enum):
     Fill = 'Fill'
 

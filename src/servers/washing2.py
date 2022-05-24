@@ -67,7 +67,6 @@ class Washing2(Server):
 
         while True:
             time.sleep(1)
-
             self.transferToNextWasher(washerSock)
             self.transferToEmulsionTank(emulsionSock)
 
@@ -75,34 +74,11 @@ class Washing2(Server):
     def transferToNextWasher(self, sock):
         sendingAmount = 0
         if self.etOHAmount > 1.5:
-            sendingAmount = 1
+            sendingAmount = 1.5
         else:
             sendingAmount = self.etOHAmount
 
         sendingAmount -= (sendingAmount * 2.5) / 100
-            
-        request = {
-            'type': RequestTypes.Fill,
-            'substance': Substances.Emulsion,
-            'amount': sendingAmount
-        }
-
-        # send request and get response
-        sock.sendall(json.dumps(request).encode())
-
-        response = json.loads(sock.recv(1024).decode())
-
-        if response['status']:
-            self.etOHAmount -= sendingAmount + (sendingAmount * 2.5) / 100
-
-    def transferToEmulsionTank(self, sock):
-        sendingAmount = 0
-        if self.etOHAmount > 1.5:
-            sendingAmount = 1
-        else:
-            sendingAmount = self.etOHAmount
-
-        sendingAmount = (sendingAmount * 2.5) / 100
             
         request = {
             'type': RequestTypes.Fill,
@@ -116,7 +92,30 @@ class Washing2(Server):
         response = json.loads(sock.recv(1024).decode())
 
         if response['status']:
-            self.etOHAmount -= (sendingAmount * 2.5) / 100
+            self.etOHAmount -= sendingAmount + (sendingAmount * 2.5) / 100
+
+    def transferToEmulsionTank(self, sock):
+        emulsion = 0
+        if self.etOHAmount > 1.5:
+            emulsion = 1.5
+        else:
+            emulsion = self.etOHAmount
+
+        sendingAmount = (emulsion * 2.5) / 100
+            
+        request = {
+            'type': RequestTypes.Fill,
+            'substance': Substances.Emulsion,
+            'amount': sendingAmount
+        }
+
+        # send request and get response
+        sock.sendall(json.dumps(request).encode())
+
+        response = json.loads(sock.recv(1024).decode())
+
+        if response['status']:
+            self.etOHAmount -= sendingAmount 
 
 
 

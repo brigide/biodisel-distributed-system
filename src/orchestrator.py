@@ -20,6 +20,8 @@ class Orchestrator:
         self.conns['Washing2'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.conns['Washing3'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.conns['EmulsionTank'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.conns['BiodieselDryer'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.conns['BiodieselTank'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def addConn(self, name, host, port):
         try:
@@ -34,6 +36,8 @@ class Orchestrator:
 
     def addConns(self):
         self.addConn('OilTank', ports.OilTank.Host(), ports.OilTank.Port())
+        self.addConn('BiodieselTank', ports.BiodieselTank.Host(), ports.BiodieselTank.Port())
+        self.addConn('BiodieselDryer', ports.BiodieselDryer.Host(), ports.BiodieselDryer.Port())
         self.addConn('EmulsionTank', ports.EmulsionTank.Host(), ports.EmulsionTank.Port())
         self.addConn('Washing3', ports.Washing3.Host(), ports.Washing3.Port())
         self.addConn('Washing2', ports.Washing2.Host(), ports.Washing2.Port())
