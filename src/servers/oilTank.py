@@ -67,7 +67,7 @@ class OilTank(Server):
         if self.oilAmount > 0.75:
             sendingAmount = 0.75
         else:
-            sendingAmount = self.oilAmount
+            return
             
         request = {
             'type': RequestTypes.Fill,

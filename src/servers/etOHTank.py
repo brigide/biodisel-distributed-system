@@ -64,10 +64,10 @@ class EtOHTank(Server):
 
     def transferEtOHToReactor(self, sock):
         sendingAmount = 0
-        if self.etOHAmount > 1:
+        if self.etOHAmount >= 1:
             sendingAmount = 1
         else:
-            sendingAmount = self.etOHAmount
+            return 
             
         request = {
             'type': RequestTypes.Fill,

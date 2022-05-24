@@ -70,7 +70,7 @@ class EtOHDryer(Server):
         if self.etOHAmount > 1:
             sendingAmount = 1
         else:
-            sendingAmount = self.etOHAmount
+            return
 
         sendingAmount -= (sendingAmount * 0.5) / 100
             

@@ -34,3 +34,13 @@ class BiodieselTank(Server):
                 response = self.fillTank(request)
                 print(f'biodiesel: {self.biodieselAmount}')
                 ServerHelper.sendMessage(conn, json.dumps(response))
+
+            if request['type'] == RequestTypes.Report:
+                response = {
+                    'name': self.name,
+                    'substances': {'Biodiesel': self.biodieselAmount},
+                    'volume': self.biodieselAmount,
+                    'waste': 0,
+                    'state': self.state
+                }
+                ServerHelper.sendMessage(conn, json.dumps(response))

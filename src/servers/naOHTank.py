@@ -64,10 +64,10 @@ class NaOHTank(Server):
 
     def transferNaOHToReactor(self, sock):
         sendingAmount = 0
-        if self.naOHAmount > 1:
+        if self.naOHAmount >= 1:
             sendingAmount = 1
         else:
-            sendingAmount = self.naOHAmount
+            return 
             
         request = {
             'type': RequestTypes.Fill,

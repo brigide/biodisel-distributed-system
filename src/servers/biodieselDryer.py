@@ -15,6 +15,8 @@ class BiodieselDryer(Server):
 
         self.etOHAmount = 0
         self.state = States.Available
+        self.waste = 0
+        self.busyTime = 0
 
         _thread.start_new_thread(self.process, ())
 
@@ -38,6 +40,16 @@ class BiodieselDryer(Server):
                     response = self.fillDryer(request)
                     ServerHelper.sendMessage(conn, json.dumps(response))
 
+                if request['type'] == RequestTypes.Report:
+                    response = {
+                        'name': self.name,
+                        'substances': {'Biodiesel': self.etOHAmount},
+                        'volume': self.etOHAmount,
+                        'waste': self.waste,
+                        'state': self.state
+                    }
+                    ServerHelper.sendMessage(conn, json.dumps(response))
+
     def process(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             try:
@@ -50,16 +62,23 @@ class BiodieselDryer(Server):
                 self.process()
 
             while True:
-                time.sleep(5)
-                self.transferToBiodieselTank(sock)
+                time.sleep(1)
+                if self.state != States.Busy:
+                    self.transferToBiodieselTank(sock)
+                else:
+                    if self.busyTime >= 5:
+                        self.state = States.Available
+                        self.busyTime = 0
+                    else:
+                        self.busyTime += 1
 
 
     def transferToBiodieselTank(self, sock):
         sendingAmount = 0
-        if self.etOHAmount > 1:
+        if self.etOHAmount >= 1:
             sendingAmount = 1
         else:
-            sendingAmount = self.etOHAmount
+            return
 
         sendingAmount -= (sendingAmount * 0.5) / 100
             
@@ -75,7 +94,9 @@ class BiodieselDryer(Server):
         response = json.loads(sock.recv(1024).decode())
 
         if response['status']:
+            self.state = States.Busy
             self.etOHAmount -= sendingAmount + (sendingAmount * 0.5) / 100
+            self.waste += (sendingAmount * 0.5) / 100
 
 
 

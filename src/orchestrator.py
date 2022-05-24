@@ -113,22 +113,26 @@ class Orchestrator:
         self.printReport(self.getReport('EtOHDryer'))
         self.printReport(self.getReport('Washing1'))
         self.printReport(self.getReport('Washing2'))
+        self.printReport(self.getReport('Washing3'))
+        self.printReport(self.getReport('EmulsionTank'))
+        self.printReport(self.getReport('BiodieselDryer'))
+        self.printReport(self.getReport('BiodieselTank'))
 
 
     def printReport(self, component):
         keylist = list(component['substances'])
         print(component['name'].ljust(25), end='')
-        print(keylist[0] + ': ' + str(round(component['substances'][keylist[0]], 2)).ljust(25), end='')
         print(str(round(component['volume'], 2)).ljust(25), end='')
         print(str(round(component['waste'], 2)).ljust(25), end='')
         print(component['state'].ljust(25), end='')
+        print(keylist[0] + ': ' + str(round(component['substances'][keylist[0]], 2)).ljust(25), end='')
         if len(keylist) > 1:
             for i in range(1, len(keylist)):
-                print((' ').ljust(25), end=' ' * (len(component['name']) + i))
+                print((' ').ljust(25), end='')
+                print(''.ljust(25), end='')
+                print(''.ljust(25), end='')
+                print(''.ljust(25), end=' ' * (len(component['name']) + i))
                 print(keylist[i] + ': ' + str(round(component['substances'][keylist[i]], 2)).ljust(25), end='')
-                print(''.ljust(25), end='')
-                print(''.ljust(25), end='')
-                print(''.ljust(25), end='')
         print('\n' + '-' * 120)
 
     def getReport(self, name):
