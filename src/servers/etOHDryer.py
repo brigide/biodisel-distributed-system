@@ -14,6 +14,7 @@ class EtOHDryer(Server):
         super().__init__(host, port, name)
 
         self.etOHAmount = 0
+        self.waste = 0
         self.state = States.Available
 
         _thread.start_new_thread(self.process, ())
@@ -36,6 +37,16 @@ class EtOHDryer(Server):
 
                 if request['type'] == RequestTypes.Fill:
                     response = self.fillDryer(request)
+                    ServerHelper.sendMessage(conn, json.dumps(response))
+
+                if request['type'] == RequestTypes.Report:
+                    response = {
+                        'name': self.name,
+                        'substances': {'EtOH': self.etOHAmount},
+                        'volume': self.etOHAmount,
+                        'waste': self.waste,
+                        'state': self.state
+                    }
                     ServerHelper.sendMessage(conn, json.dumps(response))
 
     def process(self):
@@ -76,6 +87,7 @@ class EtOHDryer(Server):
 
         if response['status']:
             self.etOHAmount -= sendingAmount + (sendingAmount * 0.5) / 100
+            self.waste += (sendingAmount * 0.5) / 100
 
 
 

@@ -2,6 +2,7 @@ from enum import Enum
 
 class RequestTypes(str, Enum):
     Fill = 'Fill'
+    Report = 'Report'
 
 class Substances(str, Enum):
     Oil = 'Oil'

@@ -24,6 +24,7 @@ class Decanter(Server):
             return {'status': False, 'message': 'component is busy'}
         else:
             if request['substance'] == Substances.DecanterSolution:
+                if request['amount'] == 0: return {'status': False, 'message': f'nothing to insert', 'back': 0}
                 if self.capacity >= self.solutionAmount + request['amount']:
                     self.solutionAmount += request['amount']
                     return {'status': True, 'message': f'{Substances.DecanterSolution} received entirely', 'back': 0}
@@ -43,8 +44,17 @@ class Decanter(Server):
             if request['type'] == RequestTypes.Fill:
                 response = self.fillDecanter(request)
                 if response['status']:
-                    print('recieved substance')
                     self.state = States.Busy
+                ServerHelper.sendMessage(conn, json.dumps(response))
+
+            if request['type'] == RequestTypes.Report:
+                response = {
+                    'name': self.name,
+                    'substances': {'Solution': self.solutionAmount},
+                    'volume': self.solutionAmount,
+                    'waste': 0,
+                    'state': self.state
+                }
                 ServerHelper.sendMessage(conn, json.dumps(response))
 
     def connectDryer(self):
@@ -95,7 +105,6 @@ class Decanter(Server):
                 self.transferToGlycerinTank(glycerinSocket)
                 self.transferToWashing1(washingSocket)
             else:
-                print('decanter is busy')
                 if self.busyTime >= 5:
                     self.state = States.Available
                     self.busyTime = 0

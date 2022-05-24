@@ -54,7 +54,6 @@ class Orchestrator:
     def initialize(self):
         seconds = 0
         while True:
-            print(seconds)
             time.sleep(1)
             seconds += 1
 
@@ -85,6 +84,64 @@ class Orchestrator:
                 
                 self.conns['OilTank'].sendall(json.dumps(request).encode())
                 response = self.conns['OilTank'].recv(1024).decode()
+
+            self.report(seconds)
+
+    def report(self, seconds):
+        print('\n' * 14)
+        print(f'time elapsed: {self.secondsToHour(seconds)}' + ' ' * 50 + 'system status: working')
+        print()
+
+        #print header
+        header = ['Component', 'Substances', 'Volume', 'Waste', 'State']
+        for head in header:
+            print(head.ljust(25), end='')
+        print()
+
+        self.getComponentReports()
+
+    def secondsToHour(self, seconds):
+        return time.strftime('%H:%M:%S', time.gmtime(seconds))
+
+    def getComponentReports(self):
+        self.printReport(self.getReport('OilTank'))
+        self.printReport(self.getReport('NaOHTank'))
+        self.printReport(self.getReport('EtOHTank'))
+        self.printReport(self.getReport('Reactor'))
+        self.printReport(self.getReport('Decanter'))
+        self.printReport(self.getReport('GlycerinTank'))
+        self.printReport(self.getReport('EtOHDryer'))
+        self.printReport(self.getReport('Washing1'))
+        self.printReport(self.getReport('Washing2'))
+
+
+    def printReport(self, component):
+        keylist = list(component['substances'])
+        print(component['name'].ljust(25), end='')
+        print(keylist[0] + ': ' + str(round(component['substances'][keylist[0]], 2)).ljust(25), end='')
+        print(str(round(component['volume'], 2)).ljust(25), end='')
+        print(str(round(component['waste'], 2)).ljust(25), end='')
+        print(component['state'].ljust(25), end='')
+        if len(keylist) > 1:
+            for i in range(1, len(keylist)):
+                print((' ').ljust(25), end=' ' * (len(component['name']) + i))
+                print(keylist[i] + ': ' + str(round(component['substances'][keylist[i]], 2)).ljust(25), end='')
+                print(''.ljust(25), end='')
+                print(''.ljust(25), end='')
+                print(''.ljust(25), end='')
+        print('\n' + '-' * 120)
+
+    def getReport(self, name):
+        request = {
+            'type': RequestTypes.Report
+        }
+        
+        self.conns[name].sendall(json.dumps(request).encode())
+        response = self.conns[name].recv(1024).decode()
+        response = json.loads(response)
+        #response = json.loads(response['substances'])
+        return response
+
 
 
 orchestrator = Orchestrator()

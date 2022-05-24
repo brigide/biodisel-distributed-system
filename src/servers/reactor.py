@@ -55,6 +55,15 @@ class Reactor(Server):
                 # print(f'NaOH amount: {self.naOHAmout}')
                 # print(f'EtOH amount: {self.etOHAmount}')
                 # print(f'Total: {self.oilAmount + self.naOHAmout + self.etOHAmount}')
+            if request['type'] == RequestTypes.Report:
+                response = {
+                    'name': self.name,
+                    'substances': {'Oil': self.oilAmount, 'NaOH': self.naOHAmout, 'EtOH': self.etOHAmount, 'Processed': self.processedSolution},
+                    'volume': self.totalAmount,
+                    'waste': 0,
+                    'state': self.state
+                }
+                ServerHelper.sendMessage(conn, json.dumps(response))
 
     def process(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -76,7 +85,8 @@ class Reactor(Server):
                 #     ) and (self.oilAmount >= 2.5 and self.naOHAmout >= 1.25 and self.etOHAmount >=1.25)):
                 if self.oilAmount >= 2.5 and self.naOHAmout >= 1.25 and self.etOHAmount >= 1.25:
                     self.processSolution()
-                    self.transferToDecanter(sock)
+                    
+                self.transferToDecanter(sock)
 
     def processSolution(self):
         time.sleep(1)
@@ -102,8 +112,9 @@ class Reactor(Server):
         response = json.loads(sock.recv(1024).decode())
 
         if response['status']:
-            self.oilAmount -= (processedSubstanceAmount * 50) / 100
-            self.naOHAmout -= (processedSubstanceAmount * 25) / 100
-            self.etOHAmount -= (processedSubstanceAmount * 25) / 100
+            # self.oilAmount -= (processedSubstanceAmount * 50) / 100
+            # self.naOHAmout -= (processedSubstanceAmount * 25) / 100
+            # self.etOHAmount -= (processedSubstanceAmount * 25) / 100
             self.totalAmount -= processedSubstanceAmount
+            self.processedSolution -= processedSubstanceAmount
 

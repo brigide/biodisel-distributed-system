@@ -32,5 +32,14 @@ class GlycerinTank(Server):
 
             if request['type'] == RequestTypes.Fill:
                 response = self.fillTank(request)
-                print(f'glycerin: {self.glycerinAmount}')
+                ServerHelper.sendMessage(conn, json.dumps(response))
+
+            if request['type'] == RequestTypes.Report:
+                response = {
+                    'name': self.name,
+                    'substances': {'Glycerin': self.glycerinAmount},
+                    'volume': self.glycerinAmount,
+                    'waste': 0,
+                    'state': self.state
+                }
                 ServerHelper.sendMessage(conn, json.dumps(response))

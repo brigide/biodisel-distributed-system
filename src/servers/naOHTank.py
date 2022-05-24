@@ -36,6 +36,16 @@ class NaOHTank(Server):
                 response = self.fillTank(request)
                 ServerHelper.sendMessage(conn, json.dumps(response))
 
+            if request['type'] == RequestTypes.Report:
+                response = {
+                    'name': self.name,
+                    'substances': {'NaOH': self.naOHAmount},
+                    'volume': self.naOHAmount,
+                    'waste': 0,
+                    'state': self.state
+                }
+                ServerHelper.sendMessage(conn, json.dumps(response))
+
     def process(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             try:

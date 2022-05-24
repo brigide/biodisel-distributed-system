@@ -14,6 +14,8 @@ class Washing1(Server):
 
         self.etOHAmount = 0
         self.state = States.Available
+        self.waste = 0
+        self.sendingAmount = 0
 
         _thread.start_new_thread(self.process, ())
 
@@ -35,6 +37,16 @@ class Washing1(Server):
 
                 if request['type'] == RequestTypes.Fill:
                     response = self.fillWasher(request)
+                    ServerHelper.sendMessage(conn, json.dumps(response))
+
+                if request['type'] == RequestTypes.Report:
+                    response = {
+                        'name': self.name,
+                        'substances': {'Solution': self.etOHAmount},
+                        'volume': self.etOHAmount,
+                        'waste': self.waste,
+                        'state': self.state
+                    }
                     ServerHelper.sendMessage(conn, json.dumps(response))
 
     def connectNextWasher(self):
@@ -67,23 +79,25 @@ class Washing1(Server):
 
         while True:
             time.sleep(1)
-            self.transferToNextWasher(washerSock)
-            self.transferToEmulsionTank(emulsionSock)
-
+            if self.transferToNextWasher(washerSock):
+                self.etOHAmount -= self.sendingAmount + (self.sendingAmount * 2.5) / 100
+            if self.transferToEmulsionTank(emulsionSock):
+                self.etOHAmount -= self.sendingAmount 
+                self.waste += self.sendingAmount
 
     def transferToNextWasher(self, sock):
-        sendingAmount = 0
-        if self.etOHAmount > 1.5:
-            sendingAmount = 1
+        self.sendingAmount = 0
+        if self.etOHAmount >= 1.5:
+            self.sendingAmount = 1.5
         else:
-            sendingAmount = self.etOHAmount
+            self.sendingAmount = self.etOHAmount
 
-        sendingAmount -= (sendingAmount * 2.5) / 100
+        self.sendingAmount -= (self.sendingAmount * 2.5) / 100
             
         request = {
             'type': RequestTypes.Fill,
             'substance': Substances.EtOH,
-            'amount': sendingAmount
+            'amount': self.sendingAmount
         }
 
         # send request and get response
@@ -92,21 +106,26 @@ class Washing1(Server):
         response = json.loads(sock.recv(1024).decode())
 
         if response['status']:
-            self.etOHAmount -= sendingAmount + (sendingAmount * 2.5) / 100
+            return True
+        return False
 
     def transferToEmulsionTank(self, sock):
+        # print()
+        # print(f'washer1: {self.etOHAmount}')
         emulsion = 0
-        if self.etOHAmount > 1.5:
+        if self.etOHAmount >= 1.5:
             emulsion = 1.5
         else:
-            emulsion = self.etOHAmount
+            self.sendingAmount = self.etOHAmount
 
-        sendingAmount = (emulsion * 2.5) / 100
+        self.sendingAmount = (emulsion * 2.5) / 100
+        print(f'send: {self.sendingAmount}')
+        # print(f'emulsion: {self.sendingAmount}')
             
         request = {
             'type': RequestTypes.Fill,
             'substance': Substances.Emulsion,
-            'amount': sendingAmount
+            'amount': self.sendingAmount
         }
 
         # send request and get response
@@ -115,7 +134,8 @@ class Washing1(Server):
         response = json.loads(sock.recv(1024).decode())
 
         if response['status']:
-            self.etOHAmount -= sendingAmount 
+            return True
+        return False
 
 
 
