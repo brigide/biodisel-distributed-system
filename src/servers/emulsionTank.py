@@ -32,13 +32,12 @@ class EmulsionTank(Server):
 
             if request['type'] == RequestTypes.Fill:
                 response = self.fillTank(request)
-                print(f'emulsion: {self.emulsionAmount}')
                 ServerHelper.sendMessage(conn, json.dumps(response))
 
             if request['type'] == RequestTypes.Report:
                 response = {
                     'name': self.name,
-                    'substances': {'Solution': self.emulsionAmount},
+                    'substances': {'Emulsion': self.emulsionAmount},
                     'volume': self.emulsionAmount,
                     'waste': 0,
                     'state': self.state

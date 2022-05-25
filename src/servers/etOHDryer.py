@@ -16,6 +16,7 @@ class EtOHDryer(Server):
         self.etOHAmount = 0
         self.waste = 0
         self.state = States.Available
+        self.busyTime = 0
 
         _thread.start_new_thread(self.process, ())
 
@@ -61,8 +62,15 @@ class EtOHDryer(Server):
                 self.process()
 
             while True:
-                time.sleep(5)
-                self.transferToEtOHTank(sock)
+                time.sleep(1)
+                if self.state != States.Busy:
+                    self.transferToEtOHTank(sock)
+                else:
+                    if self.busyTime >= 5:
+                        self.state = States.Available
+                        self.busyTime = 0
+                    else:
+                        self.busyTime += 1
 
 
     def transferToEtOHTank(self, sock):
@@ -86,6 +94,7 @@ class EtOHDryer(Server):
         response = json.loads(sock.recv(1024).decode())
 
         if response['status']:
+            self.state = States.Busy
             self.etOHAmount -= sendingAmount + (sendingAmount * 0.5) / 100
             self.waste += (sendingAmount * 0.5) / 100
 

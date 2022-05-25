@@ -93,7 +93,7 @@ class Orchestrator:
         print()
 
         #print header
-        header = ['Component', 'Substances', 'Volume', 'Waste', 'State']
+        header = ['Component', 'State', 'Waste', 'Volume', 'Substances']
         for head in header:
             print(head.ljust(25), end='')
         print()
@@ -109,22 +109,31 @@ class Orchestrator:
         self.printReport(self.getReport('EtOHTank'))
         self.printReport(self.getReport('Reactor'))
         self.printReport(self.getReport('Decanter'))
-        self.printReport(self.getReport('GlycerinTank'))
+        glycerin = self.getReport('GlycerinTank')
+        self.printReport(glycerin)
         self.printReport(self.getReport('EtOHDryer'))
         self.printReport(self.getReport('Washing1'))
         self.printReport(self.getReport('Washing2'))
         self.printReport(self.getReport('Washing3'))
-        self.printReport(self.getReport('EmulsionTank'))
+        emulsion = self.getReport('EmulsionTank')
+        self.printReport(emulsion)
         self.printReport(self.getReport('BiodieselDryer'))
-        self.printReport(self.getReport('BiodieselTank'))
+        biodiesel = self.getReport('BiodieselTank')
+        self.printReport(biodiesel)
+        print('Glycerin generated: '.ljust(10), end='')
+        print(glycerin['substances']['Glycerin'])
+        print('Emulsion generated: '.ljust(10), end='')
+        print(emulsion['substances']['Emulsion'])
+        print('Biodiesel generated: '.ljust(10), end='')
+        print(biodiesel['substances']['Biodiesel'])
 
 
     def printReport(self, component):
         keylist = list(component['substances'])
         print(component['name'].ljust(25), end='')
-        print(str(round(component['volume'], 2)).ljust(25), end='')
-        print(str(round(component['waste'], 2)).ljust(25), end='')
         print(component['state'].ljust(25), end='')
+        print(str(round(component['waste'], 2)).ljust(25), end='')
+        print(str(round(component['volume'], 2)).ljust(25), end='')
         print(keylist[0] + ': ' + str(round(component['substances'][keylist[0]], 2)).ljust(25), end='')
         if len(keylist) > 1:
             for i in range(1, len(keylist)):

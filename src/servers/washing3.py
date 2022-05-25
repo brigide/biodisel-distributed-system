@@ -81,10 +81,10 @@ class Washing3(Server):
             amount = self.sendingAmount = self.etOHAmount
             if self.transferToDryer(dryersock):
                 self.etOHAmount -= self.sendingAmount + (self.sendingAmount * 2.5) / 100
-            self.sendingAmount = amount
-            if self.transferToEmulsionTank(emulsionSock):
-                self.etOHAmount -= self.sendingAmount 
-                self.waste += self.sendingAmount
+                self.sendingAmount = amount
+                if self.transferToEmulsionTank(emulsionSock):
+                    self.etOHAmount -= self.sendingAmount 
+                    self.waste += self.sendingAmount
 
 
     def transferToDryer(self, sock):

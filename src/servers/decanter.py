@@ -16,6 +16,7 @@ class Decanter(Server):
         self.capacity = 10
         self.state = States.Available
         self.busyTime = 0
+        self.sendingAmount = 0
 
         _thread.start_new_thread(self.process, ())
 
@@ -100,10 +101,21 @@ class Decanter(Server):
 
         while True:
             time.sleep(1)
+            print(f'asdfasdfasdf {self.busyTime}')
             if self.state != States.Busy:
-                self.transferEtOHToDryer(dryerSocket)
-                self.transferToGlycerinTank(glycerinSocket)
-                self.transferToWashing1(washingSocket)
+
+                amount = self.sendingAmount = self.solutionAmount
+                if self.transferEtOHToDryer(dryerSocket):
+                    self.solutionAmount -= self.sendingAmount
+
+                self.sendingAmount = amount
+                if self.transferToGlycerinTank(glycerinSocket):
+                    self.solutionAmount -= self.sendingAmount
+
+                self.sendingAmount = amount
+                if self.transferToWashing1(washingSocket):
+                    self.solutionAmount -= self.sendingAmount
+
             else:
                 if self.busyTime >= 5:
                     self.state = States.Available
@@ -113,16 +125,15 @@ class Decanter(Server):
 
 
     def transferEtOHToDryer(self, sock):
-        sendingAmount = 0
         if self.solutionAmount > 1:
-            sendingAmount = (1 * 3) / 100
+            self.sendingAmount = (1 * 3) / 100
         else:
-            sendingAmount = (self.solutionAmount * 3) / 100
+            self.sendingAmount = (self.sendingAmount * 3) / 100
             
         request = {
             'type': RequestTypes.Fill,
             'substance': Substances.EtOH,
-            'amount': sendingAmount
+            'amount': self.sendingAmount
         }
 
         # send request and get response
@@ -131,19 +142,20 @@ class Decanter(Server):
         response = json.loads(sock.recv(1024).decode())
 
         if response['status']:
-            self.solutionAmount -= sendingAmount
+            return True
+        return False
+            
 
     def transferToGlycerinTank(self, sock):
-        sendingAmount = 0
         if self.solutionAmount > 1:
-            sendingAmount = (1 * 1) / 100
+            self.sendingAmount = (1 * 1) / 100
         else:
-            sendingAmount = (self.solutionAmount * 1) / 100
+            self.sendingAmount = (self.sendingAmount * 1) / 100
             
         request = {
             'type': RequestTypes.Fill,
             'substance': Substances.Glycerin,
-            'amount': sendingAmount
+            'amount': self.sendingAmount
         }
 
         # send request and get response
@@ -152,19 +164,19 @@ class Decanter(Server):
         response = json.loads(sock.recv(1024).decode())
 
         if response['status']:
-            self.solutionAmount -= sendingAmount
+            return True
+        return False
 
     def transferToWashing1(self, sock):
-        sendingAmount = 0
         if self.solutionAmount > 1:
-            sendingAmount = (1 * 96) / 100
+            self.sendingAmount = (1 * 96) / 100
         else:
-            sendingAmount = (self.solutionAmount * 96) / 100
+            self.sendingAmount = (self.solutionAmount * 96) / 100
             
         request = {
             'type': RequestTypes.Fill,
             'substance': Substances.EtOH,
-            'amount': sendingAmount
+            'amount': self.sendingAmount
         }
 
         # send request and get response
@@ -173,7 +185,8 @@ class Decanter(Server):
         response = json.loads(sock.recv(1024).decode())
 
         if response['status']:
-            self.solutionAmount -= sendingAmount
+            return True
+        return False
 
 
 
