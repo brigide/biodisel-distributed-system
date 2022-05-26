@@ -19,6 +19,7 @@ class Reactor(Server):
         self.totalAmount = 0
         self.processedSolution = 0
         self.state = States.Available
+        self.cycles = 0
 
         _thread.start_new_thread(self.process, ())
 
@@ -61,7 +62,8 @@ class Reactor(Server):
                     'substances': {'Oil': self.oilAmount, 'NaOH': self.naOHAmout, 'EtOH': self.etOHAmount, 'Processed': self.processedSolution},
                     'volume': self.totalAmount,
                     'waste': 0,
-                    'state': self.state
+                    'state': self.state,
+                    'cycles': self.cycles
                 }
                 ServerHelper.sendMessage(conn, json.dumps(response))
 
@@ -85,6 +87,7 @@ class Reactor(Server):
                 #     ) and (self.oilAmount >= 2.5 and self.naOHAmout >= 1.25 and self.etOHAmount >=1.25)):
                 if self.oilAmount >= 2.5 and self.naOHAmout >= 1.25 and self.etOHAmount >= 1.25:
                     self.processSolution()
+                    self.cycles += 1
                     
                 self.transferToDecanter(sock)
 

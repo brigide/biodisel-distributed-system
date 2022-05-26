@@ -17,6 +17,7 @@ class Decanter(Server):
         self.state = States.Available
         self.busyTime = 0
         self.sendingAmount = 0
+        self.cycles = 0
 
         _thread.start_new_thread(self.process, ())
 
@@ -46,6 +47,7 @@ class Decanter(Server):
                 response = self.fillDecanter(request)
                 if response['status']:
                     self.state = States.Busy
+                    self.cycles += 1
                 ServerHelper.sendMessage(conn, json.dumps(response))
 
             if request['type'] == RequestTypes.Report:
@@ -54,7 +56,8 @@ class Decanter(Server):
                     'substances': {'Solution': self.solutionAmount},
                     'volume': self.solutionAmount,
                     'waste': 0,
-                    'state': self.state
+                    'state': self.state,
+                    'cycles': self.cycles
                 }
                 ServerHelper.sendMessage(conn, json.dumps(response))
 
@@ -101,7 +104,6 @@ class Decanter(Server):
 
         while True:
             time.sleep(1)
-            print(f'asdfasdfasdf {self.busyTime}')
             if self.state != States.Busy:
 
                 amount = self.sendingAmount = self.solutionAmount

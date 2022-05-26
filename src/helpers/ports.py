@@ -124,7 +124,7 @@ class Orchestrator:
     def Port():
         return 50013
 
-class EmulsionTank:
+class Emulsion:
     @staticmethod
     def Host():
         return 'localhost'

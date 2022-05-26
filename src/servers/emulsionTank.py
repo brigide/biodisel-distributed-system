@@ -8,7 +8,7 @@ import _thread
 import socket
 import time
 
-class EmulsionTank(Server):
+class Emulsion(Server):
     def __init__(self, host, port, name):
         super().__init__(host, port, name)
 

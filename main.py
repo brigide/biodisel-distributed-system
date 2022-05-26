@@ -8,7 +8,7 @@ from src.servers.glycerinTank import GlycerinTank
 from src.servers.washing1 import Washing1
 from src.servers.washing2 import Washing2
 from src.servers.washing3 import Washing3
-from src.servers.emulsionTank import EmulsionTank
+from src.servers.emulsionTank import Emulsion
 from src.servers.biodieselDryer import BiodieselDryer
 from src.servers.biodieselTank import BiodieselTank
 from src.helpers import ports
@@ -36,17 +36,17 @@ class Main:
         conn, addr = self.processes['BiodieselTank'].waitConnection()
         self.threads['BiodieselTank'] = _thread.start_new_thread(self.processes['BiodieselTank'].run, (conn, addr))
 
-        self.processes['EmulsionTank'] = EmulsionTank(ports.EmulsionTank.Host(), ports.EmulsionTank.Port(), 'EmulsionTank')
-        conn, addr = self.processes['EmulsionTank'].waitConnection()
-        self.threads['EmulsionTank'] = _thread.start_new_thread(self.processes['EmulsionTank'].run, (conn, addr))
+        self.processes['Emulsion'] = Emulsion(ports.Emulsion.Host(), ports.Emulsion.Port(), 'Emulsion')
+        conn, addr = self.processes['Emulsion'].waitConnection()
+        self.threads['Emulsion'] = _thread.start_new_thread(self.processes['Emulsion'].run, (conn, addr))
 
         self.processes['Washing3'] = Washing3(ports.Washing3.Host(), ports.Washing3.Port(), 'Washing3')
         conn, addr = self.processes['Washing3'].waitConnection()
         self.threads['Washing3'] = _thread.start_new_thread(self.processes['Washing3'].run, (conn, addr))
         conn, addr = self.processes['BiodieselDryer'].waitConnection()
         self.threads['BiodieselDryer'] = _thread.start_new_thread(self.processes['BiodieselDryer'].run, (conn, addr))
-        conn, addr = self.processes['EmulsionTank'].waitConnection()
-        self.threads['EmulsionTank'] = _thread.start_new_thread(self.processes['EmulsionTank'].run, (conn, addr))
+        conn, addr = self.processes['Emulsion'].waitConnection()
+        self.threads['Emulsion'] = _thread.start_new_thread(self.processes['Emulsion'].run, (conn, addr))
 
 
         self.processes['Washing2'] = Washing2(ports.Washing2.Host(), ports.Washing2.Port(), 'Washing2')
@@ -54,16 +54,16 @@ class Main:
         self.threads['Washing2'] = _thread.start_new_thread(self.processes['Washing2'].run, (conn, addr))
         conn, addr = self.processes['Washing3'].waitConnection()
         self.threads['Washing3'] = _thread.start_new_thread(self.processes['Washing3'].run, (conn, addr))
-        conn, addr = self.processes['EmulsionTank'].waitConnection()
-        self.threads['EmulsionTank'] = _thread.start_new_thread(self.processes['EmulsionTank'].run, (conn, addr))
+        conn, addr = self.processes['Emulsion'].waitConnection()
+        self.threads['Emulsion'] = _thread.start_new_thread(self.processes['Emulsion'].run, (conn, addr))
 
         self.processes['Washing1'] = Washing1(ports.Washing1.Host(), ports.Washing1.Port(), 'Washing1')
         conn, addr = self.processes['Washing1'].waitConnection()
         self.threads['Washing1'] = _thread.start_new_thread(self.processes['Washing1'].run, (conn, addr))
         conn, addr = self.processes['Washing2'].waitConnection()
         self.threads['Washing2'] = _thread.start_new_thread(self.processes['Washing2'].run, (conn, addr))
-        conn, addr = self.processes['EmulsionTank'].waitConnection()
-        self.threads['EmulsionTank'] = _thread.start_new_thread(self.processes['EmulsionTank'].run, (conn, addr))
+        conn, addr = self.processes['Emulsion'].waitConnection()
+        self.threads['Emulsion'] = _thread.start_new_thread(self.processes['Emulsion'].run, (conn, addr))
 
         self.processes['GlycerinTank'] = GlycerinTank(ports.GlycerinTank.Host(), ports.GlycerinTank.Port(), 'GlycerinTank')
         conn, addr = self.processes['GlycerinTank'].waitConnection()

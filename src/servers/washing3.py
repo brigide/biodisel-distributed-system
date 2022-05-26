@@ -60,20 +60,20 @@ class Washing3(Server):
                 time.sleep(3)
                 self.connectDryer()
 
-    def connectEmulsionTank(self):
+    def connectEmulsion(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            sock.connect((ports.EmulsionTank.Host(), ports.EmulsionTank.Port()))
+            sock.connect((ports.Emulsion.Host(), ports.Emulsion.Port()))
             return sock
         except OSError as message:
                 print('socket connection error: ' + str(message))
                 print('retrying in 3 seconds...\n')
                 time.sleep(3)
-                self.connectEmulsionTank()
+                self.connectEmulsion()
 
     def process(self):
         dryersock = self.connectDryer()
-        emulsionSock = self.connectEmulsionTank()
+        emulsionSock = self.connectEmulsion()
         
 
         while True:
@@ -82,7 +82,7 @@ class Washing3(Server):
             if self.transferToDryer(dryersock):
                 self.etOHAmount -= self.sendingAmount + (self.sendingAmount * 2.5) / 100
                 self.sendingAmount = amount
-                if self.transferToEmulsionTank(emulsionSock):
+                if self.transferToEmulsion(emulsionSock):
                     self.etOHAmount -= self.sendingAmount 
                     self.waste += self.sendingAmount
 
@@ -110,7 +110,7 @@ class Washing3(Server):
             return True
         return False
 
-    def transferToEmulsionTank(self, sock):
+    def transferToEmulsion(self, sock):
         emulsion = 0
         if self.etOHAmount >= 1.5:
             emulsion = 1.5
